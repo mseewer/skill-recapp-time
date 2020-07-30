@@ -37,6 +37,7 @@ class SkillRecappTime(MycroftSkill):
             new_minutes = minutes + 5 - rest
             if (new_minutes % 60 == 0): #full hour, need to change hour as well
                 self.hours += 1
+            return new_minutes
         else:
             return minutes - rest
 
