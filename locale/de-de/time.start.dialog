@@ -1,2 +1,2 @@
-Es ist {time}
-Aktuell ist es {time}
+Es ist {hours} Uhr {minutes}
+Aktuell ist es {hours} Uhr {minutes}

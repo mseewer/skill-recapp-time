@@ -1,19 +1,21 @@
 from mycroft import MycroftSkill, intent_file_handler
 from datetime import datetime
+import pytz
 
 class SkillRecappTime(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
-    @intent_file_handler('time.recapp.skill.intent')
+    @intent_file_handler('time.start.intent')
     def handle_time_recapp_skill(self, message):
-        now = datetime.now()
+        swiss_timezone = pytz.timezone('Europe/Zurich')
+        now = datetime.now(swiss_timezone)
 
         hours = now.strftime("%H")
-        curr_minutes = round_time(now.strftime("%M"))
+        minutes = self.round_time(now.strftime("%M"))
+        self.log.info("rounding minutes done")
 
-        minutes = round_time(curr_minutes)
-        self.speak_dialog('time.recapp.skill', data={
+        self.speak_dialog('time.start', data={
             'hours': hours,
             "minutes": minutes
         })
