@@ -12,19 +12,19 @@ class SkillRecappTime(MycroftSkill):
         swiss_timezone = pytz.timezone('Europe/Zurich')
         now = datetime.now(swiss_timezone)
 
-        self.hours = now.strftime("%H")
-        self.minutes = self.round_time(now.strftime("%M"))
-        self.log.info("rounding minutes done. Start with output:")
+        self.hours = int(now.strftime("%I")) # %I is same as %H: gives hours, but in 12h format
+        self.minutes = int(self.round_time(now.strftime("%M")))
+        self.log.info("time rounded: {}:{}".format(self.hours, self.minutes))
 
-        if (minutes == 0):
+        if (self.minutes % 60 == 0):
             self.output_full_hour()
-        elif (minutes % 30 == 0):
+        elif (self.minutes % 30 == 0):
             self.output_half_hour()
-        elif (minutes == 15):
+        elif (self.minutes == 15):
             self.output_15()
-        elif (minutes == 45):
+        elif (self.minutes == 45):
             self.output_45()
-        elif (minutes < 30):
+        elif (self.minutes < 30):
             self.output_ab()
         else:
             self.output_vor()
@@ -33,8 +33,10 @@ class SkillRecappTime(MycroftSkill):
     def round_time(self, curr_minutes):
         minutes = int(curr_minutes)
         rest = minutes % 5
-        if (rest > 3): # round up
-            return minutes + 5 - rest
+        if (rest >= 3): # round up
+            new_minutes = minutes + 5 - rest
+            if (new_minutes % 60 == 0): #full hour, need to change hour as well
+                self.hours += 1
         else:
             return minutes - rest
 
@@ -48,31 +50,42 @@ class SkillRecappTime(MycroftSkill):
     def output_half_hour(self):
         files = ["time.base", "time.half.hour"]
         dialog_file = random.choice(files)
-        self.speak_dialog(dialog_file, data={
-            'hours': self.hours
-        })
+        if (dialog_file == "time.half.hour"):
+            self.speak_dialog(dialog_file, data={
+                'hours': (self.hours + 1)
+            })
+        else:
+            self.speak_dialog(dialog_file, data={
+                'hours': self.hours
+            })
 
     def output_15(self):
         files = ["time.base", "time.15", "time.ab"]
         dialog_file = random.choice(files)
         self.speak_dialog(dialog_file, data={
-            'hours': self.hours, 
+            'hours': self.hours,
             'minutes': self.minutes
         })
 
     def output_45(self):
-        files = ["time.base", "time.45", "time.ab"]
+        files = ["time.base", "time.45", "time.vor"]
         dialog_file = random.choice(files)
-        self.speak_dialog(dialog_file, data={
-            'hours': self.hours, 
-            'minutes': self.minutes
-        })
+        if (dialog_file == "time.vor"):
+            self.speak_dialog(dialog_file, data={
+                'hours': (self.hours + 1),
+                'minutes': (60 - self.minutes)
+            })
+        elif (dialog_file == "time.45"):
+            self.speak_dialog(dialog_file, data={
+                'hours': (self.hours + 1),
+                'minutes': self.minutes
+             })
 
     def output_ab(self):
         files = ["time.base", "time.ab"]
         dialog_file = random.choice(files)
         self.speak_dialog(dialog_file, data={
-            'hours': self.hours, 
+            'hours': self.hours,
             'minutes': self.minutes
         })
 
@@ -81,12 +94,12 @@ class SkillRecappTime(MycroftSkill):
         dialog_file = random.choice(files)
         if (dialog_file == "time.base"):
             self.speak_dialog(dialog_file, data={
-                'hours': self.hours, 
+                'hours': self.hours,
                 'minutes': self.minutes
             })
-        else: 
+        else:
             self.speak_dialog(dialog_file, data={
-                'hours': self.hours, 
+                'hours': (self.hours + 1),
                 'minutes': (60 - self.minutes)
             })
 
