@@ -81,6 +81,11 @@ class SkillRecappTime(MycroftSkill):
                 'hours': (self.hours + 1),
                 'minutes': self.minutes
              })
+        else:
+            self.speak_dialog(dialog_file, data={
+                'hours': self.hours,
+                'minutes': self.minutes
+             })
 
     def output_ab(self):
         files = ["time.base", "time.ab"]
