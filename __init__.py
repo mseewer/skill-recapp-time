@@ -11,10 +11,20 @@ class SkillRecappTime(MycroftSkill):
         swiss_timezone = pytz.timezone('Europe/Zurich')
         now = datetime.now(swiss_timezone)
 
-        hours = now.strftime("%H")
-        minutes = self.round_time(now.strftime("%M"))
+        self.hours = now.strftime("%H")
+        self.minutes = self.round_time(now.strftime("%M"))
         self.log.info("rounding minutes done")
 
+        if (minutes == 0):
+            self.output_full_hour()
+        elif (minutes % 30 == 0):
+            self.output_half_hour()
+        elif (minutes % 15 == 0):
+            self.output15()
+        elif (minutes < 30):
+            self.output_ab()
+        else:
+            self.output_vor()
         self.speak_dialog('time.start', data={
             'hours': hours,
             "minutes": minutes
@@ -28,6 +38,8 @@ class SkillRecappTime(MycroftSkill):
         else:
             return minutes - rest
 
+    def output_full_hour():
+        pass
 
 
 def create_skill():
